@@ -13,6 +13,7 @@ class AContentAlchemyGameMode : public AGameModeBase
 
 public:
 	AContentAlchemyGameMode();
+	//void GenerateRoom();
 };
 
 

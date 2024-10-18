@@ -2,11 +2,11 @@
 
 #include "AlchemyPlacableDatabase.h"
 
-TArray<FAlchemyPlacableData> UAlchemyPlacableDatabase::GetPlacablesByTags(const TArray<FName>& RequiredTags, const TArray<FName>& OptionalTags) const
+TArray<FAlchemyPlacable*> UAlchemyPlacableDatabase::GetPlacablesByRequiredTags(const TArray<FName>& RequiredTags) const
 {
-    TArray<FAlchemyPlacableData> FilteredPlacables;
+    TArray<FAlchemyPlacable*> Result;
 
-    for (const FAlchemyPlacableData& Placable : Placables)
+    for (const FAlchemyPlacable& Placable : Placables)
     {
         // Check required tags
         bool bMatchesRequired = true;
@@ -22,25 +22,45 @@ TArray<FAlchemyPlacableData> UAlchemyPlacableDatabase::GetPlacablesByTags(const 
         if (!bMatchesRequired)
             continue;
 
-        // Check optional tags
-        bool bMatchesOptional = OptionalTags.Num() == 0;
-        if (!bMatchesOptional)
-        {
-            for (const FName& Tag : OptionalTags)
-            {
-                if (Placable.Tags.Contains(Tag))
-                {
-                    bMatchesOptional = true;
-                    break;
-                }
-            }
-        }
+        Result.Add(const_cast<FAlchemyPlacable*>(&Placable));
+    }
 
-        if (bMatchesOptional)
+    return Result;
+}
+
+UFUNCTION(BlueprintCallable, Category = "ContentAlchemy")
+TArray<FAlchemyPlacable*> UAlchemyPlacableDatabase::GetPlacablesByAnyTags(const TArray<FName>& AnyOfTags) const
+{
+    TArray<FAlchemyPlacable*> Result;
+
+    for (const FAlchemyPlacable& Placable : Placables)
+    {
+        for (const FName& Tag : AnyOfTags)
         {
-            FilteredPlacables.Add(Placable);
+            if (Placable.Tags.Contains(Tag))
+            {
+                Result.Add(const_cast<FAlchemyPlacable*>(&Placable));
+                break;
+            }
         }
     }
 
-    return FilteredPlacables;
+    return Result;
+}
+
+UFUNCTION(BlueprintCallable, Category = "ContentAlchemy")
+TArray<FAlchemyPlacable*> UAlchemyPlacableDatabase::GetPlacablesByTag(const FName& Tag) const
+{
+    TArray<FAlchemyPlacable*> Result;
+
+    for (const FAlchemyPlacable& Placable : Placables)
+    {
+        if (Placable.Tags.Contains(Tag))
+        {
+            Result.Add(const_cast<FAlchemyPlacable*>(&Placable));
+            break;
+        }
+    }
+
+    return Result;
 }
